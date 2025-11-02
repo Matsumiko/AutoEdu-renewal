@@ -3,62 +3,76 @@
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.6+-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-Compatible-green.svg)](https://openwrt.org/)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Matsumiko/AutoEdu-renewal/graphs/commit-activity)
+[![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Matsumiko/AutoEdu-renewal/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-**Smart quota automation for OpenWrt routers**
+**Sistem Otomatis Monitoring dan Perpanjangan Kuota untuk Router OpenWrt**
 
-*Never worry about running out of quota again!*
+*Tidak perlu khawatir kehabisan kuota lagi!*
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Configuration](#-configuration) • [Troubleshooting](#-troubleshooting)
+[Fitur](#-fitur) • [Instalasi](#-instalasi) • [Penggunaan](#-penggunaan) • [Konfigurasi](#-konfigurasi) • [Troubleshooting](#-troubleshooting)
 
 </div>
 
 ---
 
-## 📖 About
+## 📖 Tentang
 
-AutoEdu-renewal is a production-ready automation system that monitors your Edu package quota via SMS and automatically triggers renewal when the quota runs low. Get beautiful Telegram notifications for every action, complete with comprehensive logging and error handling.
+AutoEdu-renewal adalah sistem otomatis yang memonitor kuota paket Edu melalui SMS dan secara otomatis melakukan perpanjangan ketika kuota hampir habis. Dilengkapi notifikasi Telegram yang cantik, logging lengkap, dan error handling yang robust.
 
-### ✨ Why AutoEdu-renewal?
+### 🙏 Credits
 
-- 🔄 **Set it and forget it** - Fully automated monitoring and renewal
-- 💬 **Rich notifications** - Beautiful HTML-formatted Telegram alerts
-- 🛡️ **Production-ready** - 98% reliability with retry mechanisms
-- 📊 **Full visibility** - Comprehensive logging for debugging
-- ⚙️ **Highly configurable** - 15+ parameters to customize
+**Original Script by:** [@zifahx](https://t.me/zifahx)  
+**Source:** https://pastebin.com/ZbXMvX4D
+
+Script ini adalah versi Edited dari script original dengan penambahan:
+- Arsitektur Object-Oriented
+- Error handling & retry mechanism
+- Logging system
+- Konfigurasi via .env file
+- Setup script interaktif
 
 ---
 
-## 🎯 Features
+## ✨ Kenapa AutoEdu-renewal?
+
+- 🔄 **Set it and forget it** - Monitoring & renewal sepenuhnya otomatis
+- 💬 **Notifikasi** - Alert Telegram dengan format HTML
+- 🛡️ **Production-ready** - Reliability 98% dengan retry mechanism
+- 📊 **Full visibility** - Logging lengkap untuk debugging
+- ⚙️ **Highly configurable** - 15+ parameter untuk customize
+- 🔒 **Secure config** - Kredensial disimpan di .env file terpisah
+
+---
+
+## 🎯 Fitur
 
 ### UX Excellence
-- ✅ Rich **Telegram notifications** with HTML formatting and emoji
-- ✅ **Comprehensive logging** system for debugging and monitoring
-- ✅ **Real-time progress tracking** with status updates
-- ✅ **Robust error handling** with automatic retry mechanisms
-- ✅ **Automatic configuration validation** before running
-- ✅ **Timeout protection** for all ADB operations
-- ✅ **Automatic log rotation** to save storage
+✅ Notifikasi **Telegram** dengan HTML & emoji  
+✅ **Logging system** komprehensif untuk debugging  
+✅ **Real-time progress tracking** dengan update status  
+✅ **Error handling** robust dengan retry otomatis  
+✅ **Validasi konfigurasi** otomatis sebelum running  
+✅ **Timeout protection** untuk semua operasi ADB  
+✅ **Log rotation** otomatis untuk hemat storage  
 
 ### Technical Excellence
-- ✅ **Object-oriented design** with separate classes for each component
-- ✅ **3x retry mechanism** for Telegram API calls
-- ✅ **Smart SMS parsing** with timestamp extraction
-- ✅ **Configurable thresholds** for all parameters
-- ✅ **Silent mode** for non-critical notifications
-- ✅ **Graceful shutdown** with proper exit codes
+✅ **Object-oriented design** dengan class terpisah  
+✅ **3x retry mechanism** untuk Telegram API  
+✅ **Smart SMS parsing** dengan ekstraksi timestamp  
+✅ **Configurable thresholds** untuk semua parameter  
+✅ **Silent mode** untuk notifikasi non-critical  
+✅ **Graceful shutdown** dengan proper exit codes  
 
 ---
 
 ## 📋 Requirements
 
 ### Hardware
-- OpenWrt router with USB port
-- Android device with USB debugging enabled
-- USB OTG/standard USB cable
+- Router OpenWrt dengan port USB
+- Device Android dengan USB debugging enabled
+- Kabel USB OTG/standar
 
 ### Software
 ```bash
@@ -66,189 +80,249 @@ opkg update
 opkg install python3 curl adb
 ```
 
-### Telegram Setup
-- Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
-- Your Telegram Chat ID (from [@userinfobot](https://t.me/userinfobot))
+### Setup Telegram
+- Telegram Bot Token (dari [@BotFather](https://t.me/BotFather))
+- Telegram Chat ID (dari [@userinfobot](https://t.me/userinfobot))
 
 ---
 
-## 🚀 Installation
+## 🚀 Instalasi
 
-### Quick Start (Automated)
+### ⚡ Quick Start - One Command Install (Recommended!)
 
-1. **Download the setup script**
-   ```bash
-   wget https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh
-   ```
+Install semua dengan **1 perintah**:
 
-2. **Run the installer**
-   ```bash
-   sh setup.sh
-   ```
-
-3. **Follow the interactive wizard** - Done! ✅
-
-### Manual Installation
-
-1. **Upload script to your router**
-   ```bash
-   # Via SCP
-   scp auto_edu.py root@192.168.1.1:/root/
-   
-   # Or use WinSCP / FileZilla for GUI
-   ```
-
-2. **SSH into your router**
-   ```bash
-   ssh root@192.168.1.1
-   ```
-
-3. **Set permissions**
-   ```bash
-   chmod +x /root/auto_edu.py
-   ```
-
-4. **Configure the script** (see [Configuration](#-configuration))
-
-5. **Test the script**
-   ```bash
-   python3 /root/auto_edu.py
-   ```
-
-6. **Setup cron job** (see [Usage](#-usage))
-
----
-
-## ⚙️ Configuration
-
-Edit `/root/auto_edu.py` and configure these parameters:
-
-### Required Settings
-
-```python
-# Telegram Bot Configuration
-BOT_TOKEN = '1234567890:ABCdefGHIjklMNOpqrsTUVwxyz'  # From @BotFather
-CHAT_ID = '123456789'                                # From @userinfobot
-
-# USSD Codes (adjust for your provider)
-KODE_UNREG = '*808*5*2*1*1#'  # Unreg code
-KODE_BELI = '*808*4*1*1*1*1#'  # Purchase code
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)
 ```
 
-### Optional Settings
+Atau alternatif:
 
-```python
-# Quota threshold (GB)
-THRESHOLD_KUOTA_GB = 3        # Trigger renewal when quota < 3GB
+```bash
+curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh | sh
+```
 
-# Timing configuration (seconds)
-JEDA_USSD = 10                # Delay between USSD commands
-TIMEOUT_ADB = 15              # ADB operation timeout
+**That's it!** Installer akan:
+1. ✅ Install dependencies (python3, curl)
+2. ✅ Buat direktori `/root/Auto-Edu/`
+3. ✅ Download script terbaru
+4. ✅ Wizard interaktif untuk setup
+5. ✅ Generate file `.env`
+6. ✅ Test script
+7. ✅ Setup cron job otomatis
 
-# Notification preferences
-NOTIF_KUOTA_AMAN = False      # Notify when quota is safe
-NOTIF_STARTUP = True          # Notify on script start
-NOTIF_DETAIL = True           # Detailed notifications
+### 📂 Struktur File Setelah Install
+
+```
+/root/Auto-Edu/              # Direktori utama
+├── auto_edu.py              # Script utama
+└── auto_edu.env             # File konfigurasi (credentials)
+```
+
+### 🔧 Instalasi Manual (Advanced)
+
+### 🔧 Instalasi Manual (Advanced)
+
+Jika ingin install manual tanpa one-liner:
+
+1. **Buat direktori**
+   ```bash
+   mkdir -p /root/Auto-Edu
+   cd /root/Auto-Edu
+   ```
+
+2. **Download script**
+   ```bash
+   wget https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/auto_edu.py
+   chmod +x auto_edu.py
+   ```
+
+3. **Install dependencies**
+   ```bash
+   opkg update
+   opkg install python3 curl adb
+   ```
+
+4. **Buat file konfigurasi**
+   ```bash
+   vi /root/Auto-Edu/auto_edu.env
+   ```
+   
+   Isi dengan:
+   ```bash
+   # Telegram Config (WAJIB)
+   BOT_TOKEN=your_bot_token_here
+   CHAT_ID=your_chat_id_here
+   
+   # USSD Codes
+   KODE_UNREG=*808*5*2*1*1#
+   KODE_BELI=*808*4*1*1*1*1#
+   
+   # Settings
+   THRESHOLD_KUOTA_GB=3
+   JEDA_USSD=10
+   TIMEOUT_ADB=15
+   NOTIF_KUOTA_AMAN=false
+   NOTIF_STARTUP=true
+   LOG_FILE=/tmp/auto_edu.log
+   MAX_LOG_SIZE=102400
+   ```
+
+5. **Set permissions**
+   ```bash
+   chmod 600 /root/Auto-Edu/auto_edu.env
+   ```
+
+6. **Test script**
+   ```bash
+   python3 /root/Auto-Edu/auto_edu.py
+   ```
+
+7. **Setup cron** (lihat bagian [Penggunaan](#-penggunaan))
+
+---
+
+## ⚙️ Konfigurasi
+
+Semua konfigurasi disimpan di `/root/Auto-Edu/auto_edu.env`
+
+**Edit konfigurasi:**
+```bash
+vi /root/Auto-Edu/auto_edu.env
+```
+
+### Pengaturan Wajib
+
+```bash
+# Kredensial Telegram
+BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz  # Dari @BotFather
+CHAT_ID=123456789                                # Dari @userinfobot
+
+# Kode USSD (sesuaikan provider)
+KODE_UNREG=*808*5*2*1*1#  # Kode unreg
+KODE_BELI=*808*4*1*1*1*1#  # Kode beli
+```
+
+### Pengaturan Opsional
+
+```bash
+# Threshold kuota (GB)
+THRESHOLD_KUOTA_GB=3        # Trigger renewal saat kuota < 3GB
+
+# Timing (detik)
+JEDA_USSD=10                # Delay antar perintah USSD
+TIMEOUT_ADB=15              # Timeout operasi ADB
+
+# Notifikasi
+NOTIF_KUOTA_AMAN=false      # Notif saat kuota aman
+NOTIF_STARTUP=true          # Notif saat script start
+NOTIF_DETAIL=true           # Notifikasi detail
 
 # Logging
-LOG_FILE = '/tmp/auto_edu.log'  # Log file path (None to disable)
-MAX_LOG_SIZE = 102400           # Max log size before rotation (bytes)
+LOG_FILE=/tmp/auto_edu.log  # Path log file
+MAX_LOG_SIZE=102400         # Max size sebelum rotation (bytes)
 ```
 
-### Getting Your Telegram Credentials
+### Cara Mendapatkan Kredensial Telegram
 
 <details>
-<summary><b>📱 How to get Bot Token</b></summary>
+<summary><b>📱 Cara Mendapatkan Bot Token</b></summary>
 
-1. Open [@BotFather](https://t.me/BotFather) on Telegram
-2. Send `/newbot`
-3. Follow the instructions
-4. Copy the token provided
+1. Buka [@BotFather](https://t.me/BotFather) di Telegram
+2. Kirim `/newbot`
+3. Ikuti instruksi yang diberikan
+4. Copy token yang diberikan
 
 </details>
 
 <details>
-<summary><b>🆔 How to get Chat ID</b></summary>
+<summary><b>🆔 Cara Mendapatkan Chat ID</b></summary>
 
-**Option 1: Via @userinfobot**
-1. Open [@userinfobot](https://t.me/userinfobot)
-2. Click "Start"
-3. Copy the ID shown
+**Opsi 1: Via @userinfobot**
+1. Buka [@userinfobot](https://t.me/userinfobot)
+2. Klik "Start"
+3. Copy ID yang ditampilkan
 
-**Option 2: Via @MissRose_bot**
-1. Open [@MissRose_bot](https://t.me/MissRose_bot)
-2. Send `/id`
-3. Copy the number
+**Opsi 2: Via @MissRose_bot**
+1. Buka [@MissRose_bot](https://t.me/MissRose_bot)
+2. Kirim `/id`
+3. Copy nomor yang ditampilkan
 
-**Option 3: Manually**
-1. Send a message to your bot
-2. Open: `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`
-3. Find `"chat":{"id":123456789}`
+**Opsi 3: Manual**
+1. Kirim pesan ke bot Anda
+2. Buka: `https://api.telegram.org/bot<TOKEN_ANDA>/getUpdates`
+3. Cari `"chat":{"id":123456789}`
 
 </details>
 
 ---
 
-## 🎮 Usage
+## 🎮 Penggunaan
 
-### Manual Execution
+### Eksekusi Manual
 
-Test the script manually:
+Test script secara manual:
 ```bash
-python3 /root/auto_edu.py
+python3 /root/Auto-Edu/auto_edu.py
 ```
 
-### Automated Monitoring (Cron)
+### Monitoring Otomatis (Cron)
 
-Setup automatic monitoring:
+Installer sudah setup cron otomatis. Untuk edit manual:
 
 ```bash
 # Edit crontab
 crontab -e
 ```
 
-Add one of these lines:
+Format cron yang sudah disetup:
 
 ```bash
-# Check every 3 minutes (recommended)
-*/3 * * * * python3 /root/auto_edu.py
+# Cek setiap 3 menit (default dari installer)
+*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py
 
-# Check every 5 minutes
-*/5 * * * * python3 /root/auto_edu.py
+# Atau setiap 5 menit
+*/5 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py
 
-# Check every 15 minutes
-*/15 * * * * python3 /root/auto_edu.py
-
-# Check every hour
-0 * * * * python3 /root/auto_edu.py
+# Atau setiap 15 menit
+*/15 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py
 ```
 
-Save and exit (in nano: `Ctrl+X`, `Y`, `Enter`)
+**Note:** `AUTO_EDU_ENV` variable memberitahu script lokasi file konfigurasi.
 
-### Monitoring
+### Monitoring & Debugging
 
 ```bash
-# View real-time logs
+# Lihat log real-time
 tail -f /tmp/auto_edu.log
 
-# View last 50 lines
+# Lihat 50 baris terakhir
 tail -50 /tmp/auto_edu.log
 
-# Search for errors
+# Cari error di log
 grep ERROR /tmp/auto_edu.log
 
-# Check cron jobs
+# Lihat cron jobs aktif
 crontab -l
 
-# View cron logs
+# Lihat log cron
 logread | grep cron
+
+# Edit konfigurasi
+vi /root/Auto-Edu/auto_edu.env
+
+# Restart script (test ulang)
+python3 /root/Auto-Edu/auto_edu.py
+
+# Cek struktur direktori
+ls -la /root/Auto-Edu/
 ```
 
 ---
 
-## 📱 Telegram Notifications
+## 📱 Notifikasi Telegram
 
-### Startup Notification
+### Notifikasi Startup
 ```
 🚀 Script Started
 
@@ -258,7 +332,7 @@ Threshold: 3GB
 ⏱ 02/11/2025 14:30:00
 ```
 
-### Low Quota Alert
+### Alert Kuota Rendah
 ```
 ⚠️ Kuota Hampir Habis!
 
@@ -271,7 +345,7 @@ Sisa kuota EduConference 30GB Anda kurang dari 3GB...
 ⏱ 02/11/2025 14:30:00
 ```
 
-### Successful Renewal
+### Renewal Berhasil
 ```
 🎉 Renewal ✅ Berhasil
 
@@ -281,7 +355,7 @@ Sisa kuota EduConference 30GB Anda kurang dari 3GB...
 📱 SMS Terbaru:
 
 SMS #1
-📤 TELKOMSEL
+📤 PROVIDERS
 🕐 02/11/2025 14:32
 💬 Paket EduConference 30GB berhasil diaktifkan...
 
@@ -293,32 +367,39 @@ SMS #1
 ## 🔍 Troubleshooting
 
 <details>
-<summary><b>Script doesn't run</b></summary>
+<summary><b>Script tidak jalan</b></summary>
 
-**Check Python installation:**
+**Cek instalasi Python:**
 ```bash
 which python3
 python3 --version
 ```
 
-**Check ADB installation:**
+**Cek instalasi ADB:**
 ```bash
 which adb
 adb devices
 ```
 
-**Check file permissions:**
+**Cek file permissions:**
 ```bash
 ls -l /root/auto_edu.py
+ls -l /root/.auto_edu.env
 chmod +x /root/auto_edu.py
+chmod 600 /root/.auto_edu.env
+```
+
+**Cek konfigurasi:**
+```bash
+cat /root/.auto_edu.env
 ```
 
 </details>
 
 <details>
-<summary><b>Device not detected</b></summary>
+<summary><b>Device tidak terdeteksi</b></summary>
 
-**Check USB connection:**
+**Cek koneksi USB:**
 ```bash
 lsusb
 dmesg | tail
@@ -331,73 +412,79 @@ adb start-server
 adb devices
 ```
 
-**Enable USB Debugging on Android:**
+**Enable USB Debugging di Android:**
 1. Settings → About Phone
-2. Tap "Build Number" 7 times
+2. Tap "Build Number" 7x
 3. Settings → Developer Options
 4. Enable "USB Debugging"
-5. Allow the connection when prompted
+5. Allow koneksi saat diminta
 
 </details>
 
 <details>
-<summary><b>No Telegram notifications</b></summary>
+<summary><b>Tidak dapat notifikasi Telegram</b></summary>
 
 **Test bot token:**
 ```bash
 curl "https://api.telegram.org/bot<TOKEN>/getMe"
 ```
 
-**Test sending message:**
+**Test kirim pesan:**
 ```bash
 curl -X POST "https://api.telegram.org/bot<TOKEN>/sendMessage" \
   -d "chat_id=<CHAT_ID>&text=Test"
 ```
 
-**Check network connectivity:**
+**Cek koneksi network:**
 ```bash
 ping -c 3 api.telegram.org
 curl -I https://api.telegram.org
 ```
 
+**Validasi .env file:**
+```bash
+cat /root/.auto_edu.env | grep BOT_TOKEN
+cat /root/.auto_edu.env | grep CHAT_ID
+```
+
 </details>
 
 <details>
-<summary><b>SMS not being read</b></summary>
+<summary><b>SMS tidak terbaca</b></summary>
 
-**Check SMS access:**
+**Cek akses SMS:**
 ```bash
 adb shell content query --uri content://sms/inbox | head
 ```
 
-**Verify SMS content:**
-- Ensure SMS from provider contains quota keyword
-- Adjust `THRESHOLD_KUOTA_GB` to match your SMS format
-- Check `JUMLAH_SMS_CEK` to read more SMS messages
+**Verifikasi isi SMS:**
+- Pastikan SMS dari provider mengandung keyword kuota
+- Sesuaikan `THRESHOLD_KUOTA_GB` dengan format SMS
+- Cek `JUMLAH_SMS_CEK` untuk baca lebih banyak SMS
 
 </details>
 
 <details>
-<summary><b>Cron job not working</b></summary>
+<summary><b>Cron job tidak jalan</b></summary>
 
-**Check cron service:**
+**Cek cron service:**
 ```bash
 /etc/init.d/cron status
 /etc/init.d/cron restart
 ```
 
-**Verify crontab syntax:**
+**Verifikasi crontab:**
 ```bash
 crontab -l
 ```
 
-**Test script manually first:**
+**Test script manual dulu:**
 ```bash
 python3 /root/auto_edu.py
-echo $?  # Should return 0 on success
+echo $?  # Harus return 0 jika sukses
 ```
 
-**Check cron logs:**
+**Cek cron logs:**
 ```bash
 logread | grep cron
 ```
@@ -408,133 +495,101 @@ logread | grep cron
 
 ## 📊 Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success - quota safe or renewal successful |
-| `1` | Error - configuration issue, ADB error, etc. |
-| `130` | Interrupted - stopped by user (Ctrl+C) |
+| Code | Keterangan |
+|------|-----------|
+| `0` | Sukses - kuota aman atau renewal berhasil |
+| `1` | Error - masalah config, ADB error, dll |
+| `130` | Interrupted - dihentikan user (Ctrl+C) |
 
 ---
 
 ## 🎯 Best Practices
 
-### Recommended Monitoring Intervals
+### Interval Monitoring yang Disarankan
 
-| Interval | Use Case | Resource Usage |
-|----------|----------|----------------|
-| Every 3 minutes | Tight monitoring | Medium |
-| Every 5 minutes | Balanced approach | Low-Medium |
-| Every 15 minutes | Resource saving | Low |
-| Every hour | Minimal checking | Very Low |
+| Interval | Use Case | Penggunaan Resource |
+|----------|----------|---------------------|
+| Setiap 3 menit | Monitoring ketat | Medium |
+| Setiap 5 menit | Pendekatan balanced | Low-Medium |
+| Setiap 15 menit | Hemat resource | Low |
+| Setiap jam | Checking minimal | Very Low |
 
-### Security Tips
+### Tips Keamanan
 
-1. **Protect your credentials**
+1. **Lindungi kredensial Anda**
    ```bash
-   chmod 600 /root/auto_edu.py  # Only root can read
+   chmod 600 /root/.auto_edu.env  # Hanya root yang bisa baca
    ```
 
-2. **Backup your configuration**
+2. **Backup konfigurasi**
    ```bash
-   cp /root/auto_edu.py /root/auto_edu.py.backup
+   cp /root/.auto_edu.env /root/.auto_edu.env.backup
    ```
 
-3. **Use private chat ID** (not group chat)
+3. **Gunakan chat ID private** (bukan group chat)
 
-4. **Never commit tokens to Git**
+4. **Jangan commit credentials ke Git**
 
-### Optimization Tips
+### Tips Optimasi
 
-- Disable unnecessary notifications to save resources
-- Increase monitoring interval if quota usage is predictable
-- Set up log rotation for long-term deployments
-- Monitor script health with custom alerts
+- Disable notifikasi yang tidak perlu untuk hemat resource
+- Tingkatkan interval monitoring jika penggunaan kuota predictable  
+- Setup log rotation untuk deployment jangka panjang
+- Monitor kesehatan script dengan custom alerts
 
 ---
 
-## 🆚 Comparison with Basic Version
+## 🆚 Perbandingan dengan Versi Original
 
-| Feature | Basic Version | Enhanced Version |
-|---------|--------------|------------------|
-| **Error Handling** | Basic | Advanced with retry |
-| **Logging** | None | File + console |
-| **Notifications** | Plain text | HTML formatted |
-| **Configuration** | Hardcoded | 15+ parameters |
-| **Validation** | None | Pre-flight check |
+| Fitur | Versi Original | Edited Version |
+|-------|----------------|------------------|
+| **Error Handling** | Basic | Advanced dengan retry |
+| **Logging** | Tidak ada | File + console |
+| **Notifikasi** | Plain text | HTML formatted |
+| **Konfigurasi** | Hardcoded | .env file |
+| **Validasi** | Tidak ada | Pre-flight check |
 | **Architecture** | Procedural | Object-oriented |
-| **Timeout** | None | All operations |
-| **Exit Codes** | None | Proper codes |
+| **Timeout** | Tidak ada | Semua operasi |
+| **Exit Codes** | Tidak ada | Proper codes |
 | **Documentation** | Minimal | Comprehensive |
-| **Success Rate** | ~85% | ~98% |
+| **Setup** | Manual edit | Interactive wizard |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Kontribusi sangat welcome! Berikut cara contribute:
 
-1. 🍴 Fork the repository
-2. 🔧 Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. ✅ Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 Push to the branch (`git push origin feature/AmazingFeature`)
-5. 🎉 Open a Pull Request
+1. 🍴 Fork repository ini
+2. 🔧 Buat feature branch (`git checkout -b feature/AmazingFeature`)
+3. ✅ Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. 📤 Push ke branch (`git push origin feature/AmazingFeature`)
+5. 🎉 Buat Pull Request
 
-### Ideas for Contributions
+### Ideas untuk Kontribusi
 
-- [ ] Web UI for monitoring
-- [ ] Multi-device support
-- [ ] Additional provider support
+- [ ] Web UI untuk monitoring
 - [ ] Statistics dashboard
-- [ ] Mobile app integration
 - [ ] Docker container
-- [ ] Backup/restore functionality
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Matsumiko
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 🙏 Acknowledgments
-
-- Thanks to the OpenWrt community
-- Inspired by real-world quota management needs
-- Enhanced with ❤️ by Claude AI
+- [ ] Fitur backup/restore
 
 ---
 
 ## 📞 Support
 
-- 📖 **Documentation**: Check the [Wiki](https://github.com/Matsumiko/AutoEdu-renewal/wiki) (coming soon)
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/Matsumiko/AutoEdu-renewal/issues)
-- 💡 **Feature Requests**: [Start a discussion](https://github.com/Matsumiko/AutoEdu-renewal/discussions)
-- ⭐ **Like it?** Give us a star!
+- 📖 **Dokumentasi**: Baca [README](README.md) ini dengan lengkap
+- 🐛 **Bug Reports**: [Buka issue](https://github.com/Matsumiko/AutoEdu-renewal/issues)
+- 💡 **Feature Requests**: [Start discussion](https://github.com/Matsumiko/AutoEdu-renewal/discussions)
+- ⭐ **Suka project ini?** Kasih star!
+
+---
+
+## 🙏 Acknowledgments
+
+- **Original Script**: [@zifahx](https://t.me/zifahx) - Terima kasih untuk script original yang powerful!
+- **Source**: https://pastebin.com/ZbXMvX4D
+- **OpenWrt Community**: Untuk platform yang luar biasa
+- **Contributors**: Semua yang telah berkontribusi untuk project ini
 
 ---
 
@@ -543,17 +598,18 @@ SOFTWARE.
 ![GitHub stars](https://img.shields.io/github/stars/Matsumiko/AutoEdu-renewal?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/Matsumiko/AutoEdu-renewal?style=social)
 ![GitHub issues](https://img.shields.io/github/issues/Matsumiko/AutoEdu-renewal)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Matsumiko/AutoEdu-renewal)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Matsumiko/AutoEdu-renewal)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for the community**
+**Dibuat dengan ❤️ untuk komunitas**
 
-*If this project helped you, please consider giving it a ⭐ star!*
+**Original by [@zifahx](https://t.me/zifahx) • Edited Version**
 
-[⬆ Back to top](#-autoedu-renewal)
+*Jika ini membantu Anda, tolong berikan ⭐ star!*
+
+[⬆ Kembali ke atas](#-autoedu-renewal)
 
 </div>

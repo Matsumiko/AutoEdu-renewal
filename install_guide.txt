@@ -1,0 +1,154 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║        🚀 AUTO EDU - ONE-LINER INSTALLATION GUIDE 🚀                ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+✨ SUPER SIMPLE - JUST ONE COMMAND! ✨
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SSH ke router OpenWrt, lalu jalankan:
+
+    bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)
+
+ATAU alternatif:
+
+    curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh | sh
+
+
+📦 APA YANG AKAN TERJADI?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Installer otomatis akan:
+
+1. ✅ Install dependencies (python3, curl)
+2. ✅ Buat direktori /root/Auto-Edu/
+3. ✅ Download script terbaru dari GitHub
+4. ✅ Wizard interaktif (input BOT_TOKEN, CHAT_ID, dll)
+5. ✅ Generate file konfigurasi auto_edu.env
+6. ✅ Test script otomatis
+7. ✅ Setup cron job untuk monitoring otomatis
+8. ✅ Done! Script langsung jalan! 🎉
+
+
+📂 STRUKTUR FILE SETELAH INSTALL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/root/Auto-Edu/                    # Direktori utama (baru!)
+├── auto_edu.py                    # Script utama
+└── auto_edu.env                   # Konfigurasi (BOT_TOKEN, CHAT_ID, dll)
+
+/tmp/auto_edu.log                  # File log
+
+
+🎯 MENGAPA STRUKTUR INI LEBIH BAIK?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Lebih terorganisir - Semua file dalam 1 direktori
+✅ Mudah di-backup - Cukup backup folder /root/Auto-Edu/
+✅ Mudah di-uninstall - Tinggal hapus 1 direktori
+✅ Tidak mengotori /root/ - File terpisah rapi
+✅ Professional structure - Sesuai best practice
+
+
+🎮 PENGGUNAAN SETELAH INSTALL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Test manual
+python3 /root/Auto-Edu/auto_edu.py
+
+# Lihat log
+tail -f /tmp/auto_edu.log
+
+# Edit config
+vi /root/Auto-Edu/auto_edu.env
+
+# Lihat cron
+crontab -l
+
+# Edit cron
+crontab -e
+
+
+💡 CONTOH WIZARD INTERAKTIF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Saat menjalankan installer, Anda akan ditanya:
+
+1. Bot Token: 1234567890:ABCdefGHIjklMNOpqr...
+2. Chat ID: 123456789
+3. Kode USSD Unreg: *808*5*2*1*1# (tekan Enter untuk default)
+4. Kode USSD Beli: *808*4*1*1*1*1# (tekan Enter untuk default)
+5. Threshold Kuota: 3 (tekan Enter untuk default 3GB)
+6. Interval monitoring: 1-4 (pilih salah satu)
+
+Installer otomatis generate file auto_edu.env dengan konfigurasi Anda!
+
+
+🔒 KEAMANAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ File auto_edu.env otomatis chmod 600 (hanya root bisa baca)
+✅ Credentials tidak hardcoded di script
+✅ File .env tidak akan ke-commit ke Git (sudah di .gitignore)
+
+
+📋 CHECKLIST SEBELUM INSTALL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Router OpenWrt sudah bisa akses internet
+□ Sudah punya Bot Token dari @BotFather
+□ Sudah punya Chat ID dari @userinfobot
+□ Device Android terhubung dengan USB debugging ON
+□ Sudah SSH ke router sebagai root
+
+
+🚨 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ "Command not found: bash"
+   → Gunakan: curl -fsSL ... | sh
+
+❌ "Failed to download"
+   → Cek koneksi internet router
+   → Cek bisa akses GitHub: ping github.com
+
+❌ "Permission denied"
+   → Pastikan login sebagai root: whoami
+
+❌ Test script gagal
+   → Cek ADB: adb devices
+   → Cek USB debugging di Android
+   → Cek config: cat /root/Auto-Edu/auto_edu.env
+
+
+🔄 UPGRADE DARI VERSI LAMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Jika sudah ada instalasi lama di /root/auto_edu.py:
+
+1. Installer akan detect dan backup otomatis
+2. Config lama akan preserved
+3. Struktur baru akan dibuat di /root/Auto-Edu/
+4. Cron job akan di-update otomatis
+
+
+📞 BUTUH BANTUAN?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Baca README.md lengkap di GitHub
+2. Cek log file: tail -50 /tmp/auto_edu.log
+3. Buka issue di GitHub repo
+4. Join Telegram group (jika ada)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+           ✨ ONE COMMAND = EVERYTHING DONE! ✨
+
+              Edited script by: Matsumiko
+         Source: https://pastebin.com/ZbXMvX4D
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                      Happy Automating! 🚀🎉

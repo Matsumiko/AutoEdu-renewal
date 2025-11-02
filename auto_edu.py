@@ -6,13 +6,24 @@ Auto Edu - Automatic Quota Management System
 Sistem otomatis untuk monitoring dan perpanjangan kuota Edu
 Optimized for OpenWrt environment
 
+Original script by: @zifahx
+Source: https://pastebin.com/ZbXMvX4D
+
+Edited version with:
+- Object-oriented design
+- Comprehensive error handling
+- Logging system
+- Retry mechanisms
+- Timeout protection
+- Configuration via .env file
+
 Setup:
 1. opkg update && opkg install python3 curl
-2. Edit konfigurasi di bawah (BOT_TOKEN, CHAT_ID, dll)
+2. Run setup.sh untuk konfigurasi otomatis
+   ATAU edit .env file manual
 3. chmod +x /root/auto_edu.py
 4. Test manual: python3 /root/auto_edu.py
 5. Setup crontab: */3 * * * * python3 /root/auto_edu.py
-
 """
 
 import re
@@ -24,32 +35,76 @@ from datetime import datetime
 from pathlib import Path
 
 # ============================================================================
-# KONFIGURASI - EDIT SESUAI KEBUTUHAN
+# KONFIGURASI - JANGAN EDIT LANGSUNG DI SINI!
+# Edit file .env atau jalankan setup.sh untuk konfigurasi
 # ============================================================================
 
-BOT_TOKEN = 'BOT_TOKEN'  # Token dari @BotFather
-CHAT_ID = 'CHAT_ID'      # Chat ID dari @MissRose_bot atau @userinfobot
+import os
+from pathlib import Path
 
-# Kode USSD (sesuaikan dengan provider Anda)
-KODE_UNREG = '*808*5*2*1*1#'  # Kode unreg Edu Rp10
-KODE_BELI = '*808*4*1*1*1*1#'  # Kode beli Edu Rp10
+# Path untuk .env file
+# Cek beberapa lokasi kemungkinan
+ENV_FILE = os.getenv('AUTO_EDU_ENV')  # Dari environment variable (prioritas)
+if not ENV_FILE or not Path(ENV_FILE).exists():
+    # Coba lokasi-lokasi standar
+    possible_paths = [
+        '/root/Auto-Edu/auto_edu.env',  # Lokasi baru (struktur terorganisir)
+        '/root/.auto_edu.env',           # Lokasi lama (backward compatibility)
+        str(Path(__file__).parent / 'auto_edu.env'),  # Relative ke script
+    ]
+    for path in possible_paths:
+        if Path(path).exists():
+            ENV_FILE = path
+            break
+    else:
+        ENV_FILE = '/root/Auto-Edu/auto_edu.env'  # Default untuk instalasi baru
+
+def load_env():
+    """Load configuration from .env file"""
+    config = {}
+    env_path = Path(ENV_FILE)
+    
+    if env_path.exists():
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    # Remove quotes if present
+                    value = value.strip().strip('"').strip("'")
+                    config[key.strip()] = value
+    
+    return config
+
+# Load dari .env
+env_config = load_env()
+
+# Konfigurasi dari .env atau default values
+BOT_TOKEN = env_config.get('BOT_TOKEN', 'BOT_TOKEN')
+CHAT_ID = env_config.get('CHAT_ID', 'CHAT_ID')
+
+# Kode USSD
+KODE_UNREG = env_config.get('KODE_UNREG', '*808*5*2*1*1#')
+KODE_BELI = env_config.get('KODE_BELI', '*808*4*1*1*1*1#')
 
 # Pengaturan timing (dalam detik)
-JEDA_USSD = 10           # Jeda antar perintah USSD
-TIMEOUT_ADB = 15         # Timeout untuk perintah ADB
+JEDA_USSD = int(env_config.get('JEDA_USSD', '10'))
+TIMEOUT_ADB = int(env_config.get('TIMEOUT_ADB', '15'))
 
 # Pengaturan threshold kuota
-THRESHOLD_KUOTA_GB = 3   # Batas minimal kuota sebelum auto-renewal
-JUMLAH_SMS_CEK = 3       # Jumlah SMS yang dicek setiap run
+THRESHOLD_KUOTA_GB = int(env_config.get('THRESHOLD_KUOTA_GB', '3'))
+JUMLAH_SMS_CEK = int(env_config.get('JUMLAH_SMS_CEK', '3'))
 
 # Pengaturan notifikasi
-NOTIF_KUOTA_AMAN = False  # Set True untuk notif saat kuota masih cukup
-NOTIF_STARTUP = True      # Notifikasi saat script dimulai
-NOTIF_DETAIL = True       # Notifikasi detail proses
+NOTIF_KUOTA_AMAN = env_config.get('NOTIF_KUOTA_AMAN', 'false').lower() == 'true'
+NOTIF_STARTUP = env_config.get('NOTIF_STARTUP', 'true').lower() == 'true'
+NOTIF_DETAIL = env_config.get('NOTIF_DETAIL', 'true').lower() == 'true'
 
 # File log (opsional, set None untuk disable)
-LOG_FILE = '/tmp/auto_edu.log'  # None untuk disable logging
-MAX_LOG_SIZE = 1024 * 100  # 100KB max log size
+LOG_FILE = env_config.get('LOG_FILE', '/tmp/auto_edu.log')
+if LOG_FILE and LOG_FILE.lower() == 'none':
+    LOG_FILE = None
+MAX_LOG_SIZE = int(env_config.get('MAX_LOG_SIZE', '102400'))
 
 # ============================================================================
 # KELAS HELPER
