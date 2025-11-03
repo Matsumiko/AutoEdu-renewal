@@ -18,28 +18,24 @@ ENV_FILE="$INSTALL_DIR/auto_edu.env"
 LOG_FILE="/tmp/auto_edu.log"
 REPO_RAW="https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main"
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
-BLUE='\033[0;34m'; CYAN='\033[0;36m'; MAGENTA='\033[0;35m'; NC='\033[0m'
-
-print_success() { echo "${GREEN}✓ $1${NC}"; }
-print_error() { echo "${RED}✗ $1${NC}"; }
-print_warning() { echo "${YELLOW}⚠ $1${NC}"; }
-print_info() { echo "${BLUE}ℹ $1${NC}"; }
+print_success() { echo "✓ $1"; }
+print_error() { echo "✗ $1"; }
+print_warning() { echo "⚠ $1"; }
+print_info() { echo "ℹ $1"; }
 
 clear
-echo "${MAGENTA}"
 cat << 'EOF'
-╔════════════════════════════════════════════╗
-║     AUTO EDU - ONE-LINER INSTALLER        ║
-║         Edited by: Matsumiko              ║
-╚════════════════════════════════════════════╝
+════════════════════════════════════════════
+   AUTO EDU - ONE-LINER INSTALLER
+        Original by: @zifahx
+════════════════════════════════════════════
 EOF
-echo "${NC}"
+echo ""
 
 [ "$(id -u)" != "0" ] && { print_error "Run as root!"; exit 1; }
 
 # STEP 1: Install dependencies
-echo "${CYAN}▶ STEP 1/7: Installing Dependencies${NC}"
+echo "▶ STEP 1/7: Installing Dependencies"
 opkg update > /dev/null 2>&1 && print_success "Updated" || print_warning "Skip update"
 for pkg in python3 curl; do
     opkg list-installed 2>/dev/null | grep -q "^$pkg " && print_success "$pkg OK" || {
@@ -51,7 +47,7 @@ command -v adb > /dev/null 2>&1 && print_success "ADB: $(command -v adb)" || pri
 echo ""
 
 # STEP 2: Create directory
-echo "${CYAN}▶ STEP 2/7: Creating Directory${NC}"
+echo "▶ STEP 2/7: Creating Directory"
 if [ -d "$INSTALL_DIR" ]; then
     print_warning "$INSTALL_DIR exists"
     read -p "Backup and recreate? (y/n) [n]: " recreate
@@ -67,7 +63,7 @@ fi
 echo ""
 
 # STEP 3: Download script
-echo "${CYAN}▶ STEP 3/7: Downloading Script${NC}"
+echo "▶ STEP 3/7: Downloading Script"
 if curl -fsSL "$REPO_RAW/auto_edu.py" -o "$SCRIPT_FILE" 2>/dev/null; then
     chmod +x "$SCRIPT_FILE"
     print_success "Downloaded: $SCRIPT_FILE"
@@ -78,7 +74,7 @@ fi
 echo ""
 
 # STEP 4: Configure
-echo "${CYAN}▶ STEP 4/7: Configuration${NC}"
+echo "▶ STEP 4/7: Configuration"
 if [ -f "$ENV_FILE" ]; then
     read -p "Config exists. Use old? (y/n) [y]: " use_old
     use_old=${use_old:-y}
@@ -86,33 +82,33 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 if [ "$SKIP_CONFIG" != "1" ]; then
-    echo "${YELLOW}PANDUAN:${NC}"
+    echo "PANDUAN:"
     echo "📱 Bot Token: @BotFather → /newbot"
     echo "🆔 Chat ID: @userinfobot → Copy ID"
     echo ""
     
     while true; do
-        printf "${CYAN}Bot Token:${NC} "; read BOT_TOKEN
+        printf "Bot Token:${NC} "; read BOT_TOKEN
         [ -n "$BOT_TOKEN" ] && break || print_error "Required!"
     done
     
     while true; do
-        printf "${CYAN}Chat ID:${NC} "; read CHAT_ID
+        printf "Chat ID:${NC} "; read CHAT_ID
         [ -n "$CHAT_ID" ] && break || print_error "Required!"
     done
     
-    printf "${CYAN}USSD Unreg [*808*5*2*1*1#]:${NC} "; read KODE_UNREG
+    printf "USSD Unreg [*808*5*2*1*1#]:${NC} "; read KODE_UNREG
     KODE_UNREG=${KODE_UNREG:-"*808*5*2*1*1#"}
     
-    printf "${CYAN}USSD Beli [*808*4*1*1*1*1#]:${NC} "; read KODE_BELI
+    printf "USSD Beli [*808*4*1*1*1*1#]:${NC} "; read KODE_BELI
     KODE_BELI=${KODE_BELI:-"*808*4*1*1*1*1#"}
     
-    printf "${CYAN}Threshold GB [3]:${NC} "; read THRESHOLD
+    printf "Threshold GB [3]:${NC} "; read THRESHOLD
     THRESHOLD=${THRESHOLD:-3}
     
     cat > "$ENV_FILE" << EOF
 # Auto Edu Config - $(date)
-# Edited by: Matsumiko
+# Original by: @zifahx
 BOT_TOKEN=$BOT_TOKEN
 CHAT_ID=$CHAT_ID
 KODE_UNREG=$KODE_UNREG
@@ -133,7 +129,7 @@ fi
 echo ""
 
 # STEP 5: Test
-echo "${CYAN}▶ STEP 5/7: Testing${NC}"
+echo "▶ STEP 5/7: Testing"
 read -p "Run test? (y/n) [y]: " test
 test=${test:-y}
 if [ "$test" = "y" ]; then
@@ -145,7 +141,7 @@ fi
 echo ""
 
 # STEP 6: Cron
-echo "${CYAN}▶ STEP 6/7: Setup Cron${NC}"
+echo "▶ STEP 6/7: Setup Cron"
 echo "1) Every 3 min (recommended)"
 echo "2) Every 5 min"
 echo "3) Every 15 min"
@@ -169,9 +165,9 @@ fi
 echo ""
 
 # STEP 7: Summary
-echo "${CYAN}▶ STEP 7/7: Done!${NC}"
+echo "▶ STEP 7/7: Done!"
 echo ""
-echo "${GREEN}✓ INSTALLATION COMPLETE!${NC}"
+echo "✓ INSTALLATION COMPLETE!"
 echo ""
 echo "📂 Directory: $INSTALL_DIR"
 echo "   ├── auto_edu.py"
@@ -180,11 +176,11 @@ echo ""
 echo "📝 Log: $LOG_FILE"
 [ -n "$CRON" ] && echo "⏰ Cron: $CRON"
 echo ""
-echo "${YELLOW}Commands:${NC}"
-echo "  Test: ${GREEN}python3 $SCRIPT_FILE${NC}"
-echo "  Logs: ${GREEN}tail -f $LOG_FILE${NC}"
-echo "  Edit: ${GREEN}vi $ENV_FILE${NC}"
+echo "Commands:"
+echo "  Test: python3 $SCRIPT_FILE"
+echo "  Logs: tail -f $LOG_FILE"
+echo "  Edit: vi $ENV_FILE"
 echo ""
 print_success "Auto Edu running! 🚀"
 echo ""
-echo "${MAGENTA}Edited by: Matsumiko${NC}"
+echo "Original by: @zifahx"

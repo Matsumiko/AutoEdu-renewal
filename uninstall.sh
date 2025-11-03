@@ -17,29 +17,19 @@ INSTALL_DIR="/root/Auto-Edu"
 LOG_FILE="/tmp/auto_edu.log"
 BACKUP_DIR="$HOME"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-print_success() { echo "${GREEN}✓ $1${NC}"; }
-print_error() { echo "${RED}✗ $1${NC}"; }
-print_warning() { echo "${YELLOW}⚠ $1${NC}"; }
-print_info() { echo "${BLUE}ℹ $1${NC}"; }
+print_success() { echo "✓ $1"; }
+print_error() { echo "✗ $1"; }
+print_warning() { echo "⚠ $1"; }
+print_info() { echo "ℹ $1"; }
 
 print_banner() {
     clear
-    echo "${RED}"
     cat << 'EOF'
-╔════════════════════════════════════════════╗
-║                                            ║
-║      AUTO EDU - UNINSTALL SCRIPT          ║
-║                                            ║
-╚════════════════════════════════════════════╝
+════════════════════════════════════════════
+     AUTO EDU - UNINSTALL SCRIPT
+════════════════════════════════════════════
 EOF
-    echo "${NC}"
+    echo ""
 }
 
 # Parse arguments
@@ -73,9 +63,9 @@ if [ ! -d "$INSTALL_DIR" ]; then
     exit 0
 fi
 
-echo "${YELLOW}Warning: This will remove Auto Edu from your system${NC}"
+echo "⚠ WARNING: This will remove Auto Edu from your system"
 echo ""
-echo "Installation found at: ${CYAN}$INSTALL_DIR${NC}"
+echo "Installation found at: $INSTALL_DIR"
 echo ""
 
 if [ "$FORCE" = false ]; then
@@ -209,36 +199,34 @@ fi
 echo ""
 
 # Final summary
-echo "${GREEN}"
+echo ""
 cat << 'EOF'
-╔════════════════════════════════════════════╗
-║                                            ║
-║      ✓ UNINSTALL COMPLETE ✓               ║
-║                                            ║
-╚════════════════════════════════════════════╝
+════════════════════════════════════════════
+     ✓ UNINSTALL COMPLETE ✓
+════════════════════════════════════════════
 EOF
-echo "${NC}"
+echo ""
 
-echo "${CYAN}════════════════════════════════════════════${NC}"
+echo "════════════════════════════════════════════"
 print_success "Auto Edu has been removed from your system"
-echo "${CYAN}════════════════════════════════════════════${NC}"
+echo "════════════════════════════════════════════"
 echo ""
 
 if [ -n "$BACKUP_FILE" ] && [ -f "$BACKUP_FILE" ]; then
-    echo "${YELLOW}📦 Backup saved:${NC}"
+    echo "📦 Backup saved:"
     echo "   $BACKUP_FILE"
     echo ""
-    echo "${YELLOW}To restore:${NC}"
+    echo "To restore:"
     echo "   tar -xzf $BACKUP_FILE -C /"
     echo "   (crontab -l; echo '*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py') | crontab -"
     echo ""
 fi
 
-echo "${YELLOW}To reinstall:${NC}"
+echo "To reinstall:"
 echo "   bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)"
 echo ""
 
-echo "${GREEN}Thank you for using Auto Edu! 👋${NC}"
+echo "Thank you for using Auto Edu! 👋"
 echo ""
 
 exit 0
