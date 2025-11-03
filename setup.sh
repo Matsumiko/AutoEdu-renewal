@@ -3,8 +3,7 @@
 # =============================================================================
 # Auto Edu - One-Liner Installer for OpenWrt
 # =============================================================================
-# Original script by: @zifahx
-# Source: https://pastebin.com/ZbXMvX4D
+# Edited Version by: Matsumiko
 #
 # Quick Install:
 # bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)
@@ -27,7 +26,7 @@ clear
 cat << 'EOF'
 ════════════════════════════════════════════
    AUTO EDU - ONE-LINER INSTALLER
-        Original by: @zifahx
+     Edited Version by: Matsumiko
 ════════════════════════════════════════════
 EOF
 echo ""
@@ -108,7 +107,7 @@ if [ "$SKIP_CONFIG" != "1" ]; then
     
     cat > "$ENV_FILE" << EOF
 # Auto Edu Config - $(date)
-# Original by: @zifahx
+Edited Version by: Matsumiko
 BOT_TOKEN=$BOT_TOKEN
 CHAT_ID=$CHAT_ID
 KODE_UNREG=$KODE_UNREG
@@ -183,4 +182,4 @@ echo "  Edit: vi $ENV_FILE"
 echo ""
 print_success "Auto Edu running! 🚀"
 echo ""
-echo "Original by: @zifahx"
+echo "Edited Version by: Matsumiko"
