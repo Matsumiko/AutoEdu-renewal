@@ -1,0 +1,223 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║        🛑 AUTO EDU - UNINSTALL / STOP GUIDE 🛑                      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+Ada 3 opsi tergantung apa yang mau kamu lakukan:
+1. 🔴 Stop sementara (tanpa uninstall)
+2. ⏸️  Disable monitoring (keep files)
+3. 🗑️  Uninstall completely (remove all)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴 OPTION 1: STOP SEMENTARA (PAUSE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Untuk stop monitoring sementara tanpa uninstall:
+
+# Hapus cron job (stop auto-run)
+crontab -l | grep -v "auto_edu.py" | crontab -
+
+# Verify cron sudah kosong
+crontab -l
+
+✅ Script masih ada, cuma tidak jalan otomatis
+✅ Bisa di-restart kapan saja
+✅ File & config tetap tersimpan
+
+
+Untuk restart lagi nanti:
+# Manual test
+python3 /root/Auto-Edu/auto_edu.py
+
+# Re-enable cron (setiap 3 menit)
+(crontab -l 2>/dev/null; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏸️  OPTION 2: DISABLE MONITORING (KEEP FILES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Untuk disable monitoring tapi keep semua files (just in case):
+
+# Remove cron job
+crontab -l | grep -v "auto_edu.py" | crontab -
+
+# Optional: Rename directory untuk "freeze" state
+mv /root/Auto-Edu /root/Auto-Edu.disabled
+
+✅ Files masih ada (bisa direstore)
+✅ Cron job dihapus
+✅ Tidak jalan sama sekali
+
+
+Untuk enable lagi:
+# Restore directory name
+mv /root/Auto-Edu.disabled /root/Auto-Edu
+
+# Re-setup cron
+(crontab -l 2>/dev/null; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🗑️  OPTION 3: UNINSTALL COMPLETELY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Untuk remove semua files dan clean up completely:
+
+
+📋 STEP-BY-STEP UNINSTALL:
+──────────────────────────────────────────────────────────────────────
+
+1. Stop & Remove Cron Job
+   ────────────────────────
+   crontab -l | grep -v "auto_edu.py" | crontab -
+   
+   # Verify
+   crontab -l
+
+
+2. Backup Config (Optional tapi recommended!)
+   ──────────────────────────────────────────
+   # Backup credentials untuk jaga-jaga
+   cp /root/Auto-Edu/auto_edu.env ~/auto_edu.env.backup
+   
+   # Atau backup full directory
+   tar -czf ~/Auto-Edu-backup-$(date +%Y%m%d).tar.gz /root/Auto-Edu/
+
+
+3. Remove Installation Directory
+   ──────────────────────────────
+   rm -rf /root/Auto-Edu/
+   
+   # Verify directory deleted
+   ls -la /root/ | grep Auto-Edu
+
+
+4. Remove Log File
+   ────────────────
+   rm -f /tmp/auto_edu.log
+
+
+5. Clean Old Installations (jika ada)
+   ──────────────────────────────────
+   # Hapus file lama jika upgrade dari versi lama
+   rm -f /root/auto_edu.py
+   rm -f /root/.auto_edu.env
+   
+   # Hapus backup directories jika ada
+   rm -rf /root/Auto-Edu.backup.*
+
+
+6. Verify Clean Uninstall
+   ───────────────────────
+   # Cek tidak ada cron job
+   crontab -l | grep auto_edu
+   # (should be empty)
+   
+   # Cek tidak ada files
+   ls -la /root/Auto-Edu
+   # (should show: No such file or directory)
+   
+   # Cek tidak ada log
+   ls -la /tmp/auto_edu.log
+   # (should show: No such file or directory)
+
+
+✅ UNINSTALL COMPLETE!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 ONE-LINER UNINSTALL SCRIPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Kalau mau quick uninstall (semua sekaligus):
+
+# Uninstall dengan backup
+tar -czf ~/Auto-Edu-backup-$(date +%Y%m%d).tar.gz /root/Auto-Edu/ 2>/dev/null; \
+crontab -l 2>/dev/null | grep -v "auto_edu.py" | crontab -; \
+rm -rf /root/Auto-Edu/ /tmp/auto_edu.log /root/auto_edu.py /root/.auto_edu.env; \
+echo "✓ Uninstall complete! Backup saved at ~/Auto-Edu-backup-*.tar.gz"
+
+# Atau tanpa backup (DELETE ALL - permanent!)
+crontab -l 2>/dev/null | grep -v "auto_edu.py" | crontab -; \
+rm -rf /root/Auto-Edu/ /tmp/auto_edu.log /root/auto_edu.py /root/.auto_edu.env; \
+echo "✓ Uninstall complete!"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 RESTORE DARI BACKUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Jika sudah uninstall tapi mau restore:
+
+# List backups yang ada
+ls -lh ~/Auto-Edu-backup-*.tar.gz
+
+# Restore dari backup
+tar -xzf ~/Auto-Edu-backup-20241102.tar.gz -C /
+
+# Re-enable cron
+(crontab -l 2>/dev/null; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
+
+# Test
+python3 /root/Auto-Edu/auto_edu.py
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ Script masih jalan padahal sudah remove cron?
+   → Cek lagi: crontab -l
+   → Restart cron service: /etc/init.d/cron restart
+   → Kill manual: pkill -f auto_edu.py
+
+❓ Directory tidak bisa dihapus "Device busy"?
+   → Kill running script: pkill -f auto_edu.py
+   → Tunggu beberapa detik
+   → Coba lagi: rm -rf /root/Auto-Edu/
+
+❓ Mau uninstall dependencies (python3, curl)?
+   → Jangan! Dependencies ini dipakai banyak program lain
+   → Biarkan saja terinstall
+
+❓ File backup terlalu besar?
+   → Backup hanya config: cp /root/Auto-Edu/auto_edu.env ~/backup.env
+   → Delete backup lama: rm ~/Auto-Edu-backup-*.tar.gz
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STOP SEMENTARA:
+  crontab -l | grep -v "auto_edu.py" | crontab -
+
+DISABLE + KEEP FILES:
+  crontab -l | grep -v "auto_edu.py" | crontab -
+  mv /root/Auto-Edu /root/Auto-Edu.disabled
+
+UNINSTALL COMPLETE (with backup):
+  tar -czf ~/Auto-Edu-backup.tar.gz /root/Auto-Edu/
+  crontab -l | grep -v "auto_edu.py" | crontab -
+  rm -rf /root/Auto-Edu/ /tmp/auto_edu.log
+
+UNINSTALL COMPLETE (no backup):
+  crontab -l | grep -v "auto_edu.py" | crontab -
+  rm -rf /root/Auto-Edu/ /tmp/auto_edu.log
+
+REINSTALL:
+  bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+              🎯 Pilih opsi sesuai kebutuhan! 🎯
+
+   Stop Sementara → Pakai lagi nanti
+   Disable → Keep files, no auto-run
+   Uninstall → Clean slate, remove all
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
