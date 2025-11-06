@@ -4,6 +4,8 @@
 
 [![Python](https://img.shields.io/badge/Python-3.6+-blue.svg)](https://www.python.org/)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-Compatible-green.svg)](https://openwrt.org/)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/Matsumiko/AutoEdu-renewal/releases)
+[![Fixed](https://img.shields.io/badge/double--renewal-fixed-success.svg)](https://github.com/Matsumiko/AutoEdu-renewal/blob/main/FIX_DOUBLE_RENEWAL.md)
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Matsumiko/AutoEdu-renewal/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
@@ -21,7 +23,31 @@
 
 AutoEdu-renewal adalah sistem otomatis yang memonitor kuota paket Edu melalui SMS dan secara otomatis melakukan perpanjangan ketika kuota hampir habis. Dilengkapi notifikasi Telegram, logging lengkap, dan error handling yang robust.
 
-### 🙏 🙏 🙏
+### ⚡ What's New (v1.1.0)
+
+<details>
+<summary><b>🎉 Fixed: Double Renewal Issue</b></summary>
+
+**Masalah yang diperbaiki:**
+- ✅ Script tidak lagi melakukan renewal berulang (2-3x)
+- ✅ SMS lama diabaikan dengan time-based filtering
+- ✅ Auto-detect konfirmasi aktivasi paket
+
+**Fitur baru:**
+- `SMS_MAX_AGE_MINUTES` - Filter SMS berdasarkan usia
+- Notifikasi configurable saat setup (NOTIF_STARTUP, NOTIF_KUOTA_AMAN)
+- Update script untuk existing users
+
+**Untuk update:**
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/update.sh)
+```
+
+📖 **Detail:** [FIX_DOUBLE_RENEWAL.md](FIX_DOUBLE_RENEWAL.md)
+
+</details>
+
+### 🙏
 Script ini adalah versi Edited dari script original dengan penambahan:
 - Arsitektur Object-Oriented
 - Error handling & retry mechanism
@@ -29,6 +55,7 @@ Script ini adalah versi Edited dari script original dengan penambahan:
 - Konfigurasi via .env file
 - Setup script interaktif
 - **Configurable notification settings** - Hindari spam notifikasi!
+- **Anti double-renewal fix** - SMS time-based filtering mencegah renewal berulang!
 
 ---
 
@@ -184,6 +211,12 @@ Jika ingin install manual tanpa one-liner:
 
 7. **Setup cron** (lihat bagian [Penggunaan](#-penggunaan))
 
+> **💡 Sudah punya versi lama?**  
+> Update ke versi terbaru dengan fix double-renewal:
+> ```bash
+> bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/update.sh)
+> ```
+
 ---
 
 ## ⚙️ Konfigurasi
@@ -217,6 +250,9 @@ THRESHOLD_KUOTA_GB=3        # Trigger renewal saat kuota < 3GB
 JEDA_USSD=10                # Delay antar perintah USSD
 TIMEOUT_ADB=15              # Timeout operasi ADB
 
+# Anti Double-Renewal (menit)
+SMS_MAX_AGE_MINUTES=15      # Hanya cek SMS < X menit (mencegah double renewal)
+
 # Notifikasi (ditanyakan saat setup.sh)
 NOTIF_KUOTA_AMAN=false      # Notif saat kuota aman (recommend: false)
 NOTIF_STARTUP=false         # Notif saat script start (recommend: false untuk interval <5min)
@@ -231,6 +267,11 @@ MAX_LOG_SIZE=102400         # Max size sebelum rotation (bytes)
 > - Untuk interval pendek (setiap 3-5 menit), set `NOTIF_STARTUP=false` dan `NOTIF_KUOTA_AMAN=false` untuk menghindari spam
 > - Notifikasi penting (kuota habis, renewal, error) **tetap akan dikirim** terlepas dari setting ini
 > - Setup wizard akan menanyakan preferensi Anda secara interaktif
+
+> **🛡️ Tips Anti Double-Renewal:**
+> - `SMS_MAX_AGE_MINUTES` mencegah script memprosses SMS lama yang sudah di-handle
+> - Sesuaikan dengan interval cron: cron 3 menit → set 10-15 menit
+> - Script otomatis skip SMS konfirmasi aktivasi ("paket aktif")
 
 ### 📱 Jenis Notifikasi
 
@@ -551,6 +592,51 @@ NOTIF_KUOTA_AMAN=false
 
 </details>
 
+<details>
+<summary><b>Double renewal / Script renewal berulang</b></summary>
+
+**Masalah:** Script melakukan renewal 2-3x berturut-turut meskipun paket sudah aktif.
+
+**Penyebab:** Script mendeteksi SMS lama "kurang dari 3GB" yang belum hilang dari inbox.
+
+**Solusi:**
+
+**1. Update ke versi terbaru (Recommended)**
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/update.sh)
+```
+
+**2. Atau tambahkan parameter manual:**
+```bash
+vi /root/Auto-Edu/auto_edu.env
+
+# Tambahkan baris ini setelah TIMEOUT_ADB:
+SMS_MAX_AGE_MINUTES=15
+```
+
+**3. Sesuaikan dengan interval cron:**
+- Cron 3 menit → `SMS_MAX_AGE_MINUTES=10`
+- Cron 5 menit → `SMS_MAX_AGE_MINUTES=15`
+- Cron 15 menit → `SMS_MAX_AGE_MINUTES=30`
+
+**Verifikasi fix bekerja:**
+```bash
+# Cek parameter sudah ada
+grep SMS_MAX_AGE_MINUTES /root/Auto-Edu/auto_edu.env
+
+# Test script
+python3 /root/Auto-Edu/auto_edu.py
+
+# Monitor log
+tail -f /tmp/auto_edu.log
+```
+
+Expected log: `[SUCCESS] ✅ SMS terbaru adalah konfirmasi - Skip renewal`
+
+📖 **Detail lengkap:** Lihat [FIX_DOUBLE_RENEWAL.md](FIX_DOUBLE_RENEWAL.md)
+
+</details>
+
 ---
 
 ## 📊 Exit Codes
@@ -619,6 +705,7 @@ NOTIF_KUOTA_AMAN=false
 | **Logging** | Tidak ada | File + console |
 | **Notifikasi** | Plain text | HTML formatted |
 | **Anti-Spam Notif** | ❌ | ✅ Configurable |
+| **Anti Double-Renewal** | ❌ | ✅ SMS time filtering |
 | **Setup Wizard** | ❌ | ✅ Interactive |
 | **Konfigurasi** | Hardcoded | .env file |
 | **Validasi** | Tidak ada | Pre-flight check |

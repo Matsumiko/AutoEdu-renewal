@@ -7,15 +7,13 @@ Sistem otomatis untuk monitoring dan perpanjangan kuota Edu
 Optimized for OpenWrt environment
 
 Edited Version by: Matsumiko
+Original script by: @zifahx
 Source: https://pastebin.com/ZbXMvX4D
 
-Edited version with:
-- Object-oriented design
-- Comprehensive error handling
-- Logging system
-- Retry mechanisms
-- Timeout protection
-- Configuration via .env file
+FIXED VERSION - Mengatasi double renewal issue dengan:
+- Time-based SMS filtering (hanya cek SMS < 15 menit)
+- Deteksi konfirmasi aktivasi paket
+- Skip renewal jika paket baru saja aktif
 
 Setup:
 1. opkg update && opkg install python3 curl
@@ -94,6 +92,9 @@ TIMEOUT_ADB = int(env_config.get('TIMEOUT_ADB', '15'))
 # Pengaturan threshold kuota
 THRESHOLD_KUOTA_GB = int(env_config.get('THRESHOLD_KUOTA_GB', '3'))
 JUMLAH_SMS_CEK = int(env_config.get('JUMLAH_SMS_CEK', '3'))
+
+# NEW: Pengaturan time window untuk SMS (dalam menit)
+SMS_MAX_AGE_MINUTES = int(env_config.get('SMS_MAX_AGE_MINUTES', '15'))
 
 # Pengaturan notifikasi
 NOTIF_KUOTA_AMAN = env_config.get('NOTIF_KUOTA_AMAN', 'false').lower() == 'true'
@@ -445,7 +446,57 @@ def cek_kuota_dan_proses(adb, telegram, logger):
     logger.info(f"SMS terbaru dari: {sms_list[0]['pengirim']}")
     logger.info(f"Isi: {sms_list[0]['isi'][:100]}...")
     
-    if kuota_rendah:
+    # ========================================================================
+    # FIX #1: Cek apakah SMS terbaru adalah konfirmasi aktivasi
+    # ========================================================================
+    sms_terbaru = sms_list[0]['isi'].lower()
+    konfirmasi_keywords = [
+        'sdh aktif', 
+        'sudah aktif', 
+        'berhasil diaktifkan', 
+        'telah diaktifkan',
+        'anda sdh aktif',
+        'paket aktif'
+    ]
+    
+    if any(kw in sms_terbaru for kw in konfirmasi_keywords):
+        logger.success("✅ SMS terbaru adalah konfirmasi aktivasi paket - Skip renewal")
+        
+        if NOTIF_KUOTA_AMAN:
+            telegram.kirim_pesan_format(
+                "✅", "Paket Baru Aktif",
+                f"Paket baru sudah aktif!\n\n"
+                f"<b>SMS Terakhir:</b>\n{format_sms_untuk_telegram([sms_list[0]], 1)}",
+                tingkat='info'
+            )
+        
+        return True
+    
+    # ========================================================================
+    # FIX #2: Filter SMS berdasarkan waktu (hanya cek SMS fresh)
+    # ========================================================================
+    current_time = time.time()
+    max_age_seconds = SMS_MAX_AGE_MINUTES * 60
+    
+    fresh_kuota_rendah = False
+    for sms in sms_list:
+        sms_age = current_time - sms['timestamp']
+        
+        # Hanya cek SMS yang masih fresh (< X menit)
+        if sms_age < max_age_seconds:
+            if keyword.lower() in sms['isi'].lower():
+                fresh_kuota_rendah = True
+                sms_age_minutes = int(sms_age / 60)
+                logger.warning(
+                    f"⚠️ SMS kuota rendah ditemukan "
+                    f"(usia: {sms_age_minutes} menit, threshold: {SMS_MAX_AGE_MINUTES} menit)"
+                )
+                break
+        else:
+            sms_age_minutes = int(sms_age / 60)
+            logger.info(f"Skip SMS lama (usia: {sms_age_minutes} menit)")
+    
+    if fresh_kuota_rendah:
         logger.warning(f"⚠️ KUOTA RENDAH TERDETEKSI! (< {THRESHOLD_KUOTA_GB}GB)")
         
         # Kirim notifikasi dan mulai renewal
@@ -460,7 +511,7 @@ def cek_kuota_dan_proses(adb, telegram, logger):
         return proses_renewal(adb, telegram, logger)
     
     else:
-        logger.success(f"✅ Kuota masih aman (≥ {THRESHOLD_KUOTA_GB}GB)")
+        logger.success(f"✅ Kuota masih aman (≥ {THRESHOLD_KUOTA_GB}GB atau SMS sudah lama)")
         
         if NOTIF_KUOTA_AMAN:
             telegram.kirim_pesan_format(
@@ -502,7 +553,7 @@ def main():
     adb = ADBManager(logger)
     
     logger.info("=" * 60)
-    logger.info("AUTO EDU - AUTOMATIC QUOTA MANAGEMENT SYSTEM")
+    logger.info("AUTO EDU - AUTOMATIC QUOTA MANAGEMENT SYSTEM (FIXED)")
     logger.info("=" * 60)
     
     try:
@@ -523,7 +574,8 @@ def main():
             telegram.kirim_pesan_format(
                 "🚀", "Script Started",
                 f"Auto Edu monitoring dimulai\n"
-                f"Threshold: {THRESHOLD_KUOTA_GB}GB",
+                f"Threshold: {THRESHOLD_KUOTA_GB}GB\n"
+                f"SMS Max Age: {SMS_MAX_AGE_MINUTES} menit",
                 tingkat='info'
             )
         

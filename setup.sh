@@ -27,6 +27,8 @@ cat << 'EOF'
 ════════════════════════════════════════════
    AUTO EDU - ONE-LINER INSTALLER
      Edited Version by: Matsumiko
+   
+   ✨ With Anti Double-Renewal Fix
 ════════════════════════════════════════════
 EOF
 echo ""
@@ -153,6 +155,11 @@ JUMLAH_SMS_CEK=3
 JEDA_USSD=10
 TIMEOUT_ADB=15
 
+# Anti Double-Renewal (minutes)
+# Hanya cek SMS yang lebih baru dari X menit
+# Recommended: 10-15 menit untuk cron 3-5 menit
+SMS_MAX_AGE_MINUTES=15
+
 # Notification Settings
 NOTIF_KUOTA_AMAN=$NOTIF_KUOTA_AMAN
 NOTIF_STARTUP=$NOTIF_STARTUP
@@ -170,6 +177,8 @@ EOF
     echo "  • 🔄 Proses renewal"
     echo "  • ✅/❌ Hasil renewal"
     echo "  • ❌ Error konfigurasi/koneksi"
+    echo ""
+    print_success "Anti double-renewal: SMS filter 15 menit"
 fi
 echo ""
 
