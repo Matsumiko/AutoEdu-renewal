@@ -151,7 +151,7 @@ Jika ingin install manual tanpa one-liner:
    CHAT_ID=your_chat_id_here
    
    # USSD Codes
-   KODE_UNREG=*808*5*2*2*1#
+   KODE_UNREG=*808*5*2*1*1#
    KODE_BELI=*808*4*1*1*1*1#
    
    # Quota Settings
@@ -203,7 +203,7 @@ BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz  # Dari @BotFather
 CHAT_ID=123456789                                # Dari @userinfobot
 
 # Kode USSD (sesuaikan provider)
-KODE_UNREG=*808*5*2*2*1#  # Kode unreg
+KODE_UNREG=*808*5*2*1*1#  # Kode unreg
 KODE_BELI=*808*4*1*1*1*1#  # Kode beli
 ```
 
@@ -389,7 +389,7 @@ Sisa kuota EduConference 30GB Anda kurang dari 3GB...
 ```
 🎉 Renewal ✅ Berhasil
 
-✅ USSD '*808*5*2*2*1#' terkirim
+✅ USSD '*808*5*2*1*1#' terkirim
 ✅ USSD '*808*4*1*1*1*1#' terkirim
 
 📱 SMS Terbaru:

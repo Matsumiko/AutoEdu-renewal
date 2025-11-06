@@ -96,8 +96,8 @@ if [ "$SKIP_CONFIG" != "1" ]; then
         [ -n "$CHAT_ID" ] && break || print_error "Required!"
     done
     
-    printf "USSD Unreg [*808*5*2*2*1#]: "; read KODE_UNREG
-    KODE_UNREG=${KODE_UNREG:-"*808*5*2*2*1#"}
+    printf "USSD Unreg [*808*5*2*1*1#]: "; read KODE_UNREG
+    KODE_UNREG=${KODE_UNREG:-"*808*5*2*1*1#"}
     
     printf "USSD Beli [*808*4*1*1*1*1#]: "; read KODE_BELI
     KODE_BELI=${KODE_BELI:-"*808*4*1*1*1*1#"}
