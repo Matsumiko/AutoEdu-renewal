@@ -15,6 +15,7 @@ set -e
 
 INSTALL_DIR="/root/Auto-Edu"
 LOG_FILE="/tmp/auto_edu.log"
+TIMESTAMP_FILE="/tmp/auto_edu_last_renewal"
 BACKUP_DIR="$HOME"
 
 print_success() { echo "✓ $1"; }
@@ -27,6 +28,7 @@ print_banner() {
     cat << 'EOF'
 ════════════════════════════════════════════
      AUTO EDU - UNINSTALL SCRIPT
+     Edited Version by: Matsumiko
 ════════════════════════════════════════════
 EOF
     echo ""
@@ -144,6 +146,16 @@ else
 fi
 echo ""
 
+# NEW: Remove timestamp file
+print_info "Removing timestamp file..."
+if [ -f "$TIMESTAMP_FILE" ]; then
+    rm -f "$TIMESTAMP_FILE"
+    print_success "Timestamp removed: $TIMESTAMP_FILE"
+else
+    print_info "Timestamp file not found"
+fi
+echo ""
+
 # Step 5: Clean old installations
 print_info "Cleaning old files..."
 OLD_FILES="/root/auto_edu.py /root/.auto_edu.env"
@@ -186,13 +198,18 @@ if [ -f "$LOG_FILE" ]; then
     ERRORS=$((ERRORS + 1))
 fi
 
+if [ -f "$TIMESTAMP_FILE" ]; then
+    print_error "Timestamp file still exists: $TIMESTAMP_FILE"
+    ERRORS=$((ERRORS + 1))
+fi
+
 if crontab -l 2>/dev/null | grep -q "auto_edu.py"; then
     print_error "Cron job still exists"
     ERRORS=$((ERRORS + 1))
 fi
 
 if [ $ERRORS -eq 0 ]; then
-    print_success "Verification passed"
+    print_success "Verification passed - All clean!"
 else
     print_warning "$ERRORS error(s) found"
 fi
@@ -227,6 +244,8 @@ echo "   bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-r
 echo ""
 
 echo "Thank you for using Auto Edu! 👋"
+echo ""
+echo "Edited Version by: Matsumiko"
 echo ""
 
 exit 0
