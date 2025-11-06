@@ -21,7 +21,7 @@
 
 AutoEdu-renewal adalah sistem otomatis yang memonitor kuota paket Edu melalui SMS dan secara otomatis melakukan perpanjangan ketika kuota hampir habis. Dilengkapi notifikasi Telegram, logging lengkap, dan error handling yang robust.
 
-### 🙏 Credits
+### 🙏 🙏 🙏
 Script ini adalah versi Edited dari script original dengan penambahan:
 - Arsitektur Object-Oriented
 - Error handling & retry mechanism
