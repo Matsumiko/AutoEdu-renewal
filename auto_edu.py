@@ -7,7 +7,6 @@ Sistem otomatis untuk monitoring dan perpanjangan kuota Edu
 Optimized for OpenWrt environment
 
 Edited Version by: Matsumiko
-Original script by: @zifahx
 Source: https://pastebin.com/ZbXMvX4D
 
 Edited version with:
@@ -85,7 +84,7 @@ BOT_TOKEN = env_config.get('BOT_TOKEN', 'BOT_TOKEN')
 CHAT_ID = env_config.get('CHAT_ID', 'CHAT_ID')
 
 # Kode USSD
-KODE_UNREG = env_config.get('KODE_UNREG', '*808*5*2*1*1#')
+KODE_UNREG = env_config.get('KODE_UNREG', '*808*5*2*2*1#')
 KODE_BELI = env_config.get('KODE_BELI', '*808*4*1*1*1*1#')
 
 # Pengaturan timing (dalam detik)

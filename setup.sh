@@ -87,43 +87,89 @@ if [ "$SKIP_CONFIG" != "1" ]; then
     echo ""
     
     while true; do
-        printf "Bot Token:${NC} "; read BOT_TOKEN
+        printf "Bot Token: "; read BOT_TOKEN
         [ -n "$BOT_TOKEN" ] && break || print_error "Required!"
     done
     
     while true; do
-        printf "Chat ID:${NC} "; read CHAT_ID
+        printf "Chat ID: "; read CHAT_ID
         [ -n "$CHAT_ID" ] && break || print_error "Required!"
     done
     
-    printf "USSD Unreg [*808*5*2*1*1#]:${NC} "; read KODE_UNREG
-    KODE_UNREG=${KODE_UNREG:-"*808*5*2*1*1#"}
+    printf "USSD Unreg [*808*5*2*2*1#]: "; read KODE_UNREG
+    KODE_UNREG=${KODE_UNREG:-"*808*5*2*2*1#"}
     
-    printf "USSD Beli [*808*4*1*1*1*1#]:${NC} "; read KODE_BELI
+    printf "USSD Beli [*808*4*1*1*1*1#]: "; read KODE_BELI
     KODE_BELI=${KODE_BELI:-"*808*4*1*1*1*1#"}
     
-    printf "Threshold GB [3]:${NC} "; read THRESHOLD
+    printf "Threshold GB [3]: "; read THRESHOLD
     THRESHOLD=${THRESHOLD:-3}
+    
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "PENGATURAN NOTIFIKASI"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    print_info "Rekomendasi untuk interval pendek (<5 menit): pilih 'n' untuk kedua notifikasi"
+    echo ""
+    
+    printf "Kirim notif saat script start? (y/n) [n]: "; read NOTIF_STARTUP_INPUT
+    NOTIF_STARTUP_INPUT=${NOTIF_STARTUP_INPUT:-n}
+    if [ "$NOTIF_STARTUP_INPUT" = "y" ] || [ "$NOTIF_STARTUP_INPUT" = "Y" ]; then
+        NOTIF_STARTUP="true"
+        print_warning "Notif startup: AKTIF (bisa spam jika interval pendek)"
+    else
+        NOTIF_STARTUP="false"
+        print_success "Notif startup: NONAKTIF"
+    fi
+    
+    printf "Kirim notif saat kuota aman? (y/n) [n]: "; read NOTIF_AMAN_INPUT
+    NOTIF_AMAN_INPUT=${NOTIF_AMAN_INPUT:-n}
+    if [ "$NOTIF_AMAN_INPUT" = "y" ] || [ "$NOTIF_AMAN_INPUT" = "Y" ]; then
+        NOTIF_KUOTA_AMAN="true"
+        print_warning "Notif kuota aman: AKTIF (bisa spam jika interval pendek)"
+    else
+        NOTIF_KUOTA_AMAN="false"
+        print_success "Notif kuota aman: NONAKTIF"
+    fi
+    echo ""
     
     cat > "$ENV_FILE" << EOF
 # Auto Edu Config - $(date)
-Edited Version by: Matsumiko
+# Edited Version by: Matsumiko
+
+# Telegram Configuration
 BOT_TOKEN=$BOT_TOKEN
 CHAT_ID=$CHAT_ID
+
+# USSD Codes
 KODE_UNREG=$KODE_UNREG
 KODE_BELI=$KODE_BELI
+
+# Quota Settings
 THRESHOLD_KUOTA_GB=$THRESHOLD
+JUMLAH_SMS_CEK=3
+
+# Timing Settings (seconds)
 JEDA_USSD=10
 TIMEOUT_ADB=15
-JUMLAH_SMS_CEK=3
-NOTIF_KUOTA_AMAN=false
-NOTIF_STARTUP=true
+
+# Notification Settings
+NOTIF_KUOTA_AMAN=$NOTIF_KUOTA_AMAN
+NOTIF_STARTUP=$NOTIF_STARTUP
 NOTIF_DETAIL=true
+
+# Logging
 LOG_FILE=$LOG_FILE
 MAX_LOG_SIZE=102400
 EOF
     chmod 600 "$ENV_FILE"
     print_success "Config saved"
+    echo ""
+    print_info "Notif yang TETAP dikirim:"
+    echo "  • ⚠️  Kuota hampir habis"
+    echo "  • 🔄 Proses renewal"
+    echo "  • ✅/❌ Hasil renewal"
+    echo "  • ❌ Error konfigurasi/koneksi"
 fi
 echo ""
 

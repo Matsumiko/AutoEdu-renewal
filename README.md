@@ -22,23 +22,20 @@
 AutoEdu-renewal adalah sistem otomatis yang memonitor kuota paket Edu melalui SMS dan secara otomatis melakukan perpanjangan ketika kuota hampir habis. Dilengkapi notifikasi Telegram, logging lengkap, dan error handling yang robust.
 
 ### 🙏 Credits
-
-**Original Script by:** [@zifahx](https://t.me/zifahx)  
-**Source:** https://pastebin.com/ZbXMvX4D
-
 Script ini adalah versi Edited dari script original dengan penambahan:
 - Arsitektur Object-Oriented
 - Error handling & retry mechanism
 - Logging system
 - Konfigurasi via .env file
 - Setup script interaktif
+- **Configurable notification settings** - Hindari spam notifikasi!
 
 ---
 
 ## ✨ Kenapa AutoEdu-renewal?
 
 - 🔄 **Set it and forget it** - Monitoring & renewal sepenuhnya otomatis
-- 💬 **Notifikasi** - Alert Telegram dengan format HTML
+- 💬 **Notifikasi cerdas** - Alert Telegram dengan format HTML, tanpa spam!
 - 🛡️ **Production-ready** - Reliability 98% dengan retry mechanism
 - 📊 **Full visibility** - Logging lengkap untuk debugging
 - ⚙️ **Highly configurable** - 15+ parameter untuk customize
@@ -50,6 +47,7 @@ Script ini adalah versi Edited dari script original dengan penambahan:
 
 ### UX Excellence
 ✅ Notifikasi **Telegram** dengan HTML & emoji  
+✅ **Smart notification** - Hindari spam dengan setting granular  
 ✅ **Logging system** komprehensif untuk debugging  
 ✅ **Real-time progress tracking** dengan update status  
 ✅ **Error handling** robust dengan retry otomatis  
@@ -106,7 +104,7 @@ curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setu
 1. ✅ Install dependencies (python3, curl)
 2. ✅ Buat direktori `/root/Auto-Edu/`
 3. ✅ Download script terbaru
-4. ✅ Wizard interaktif untuk setup
+4. ✅ **Wizard interaktif untuk setup (termasuk pilihan notifikasi!)**
 5. ✅ Generate file `.env`
 6. ✅ Test script
 7. ✅ Setup cron job otomatis
@@ -118,8 +116,6 @@ curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setu
 ├── auto_edu.py              # Script utama
 └── auto_edu.env             # File konfigurasi (credentials)
 ```
-
-### 🔧 Instalasi Manual (Advanced)
 
 ### 🔧 Instalasi Manual (Advanced)
 
@@ -155,15 +151,23 @@ Jika ingin install manual tanpa one-liner:
    CHAT_ID=your_chat_id_here
    
    # USSD Codes
-   KODE_UNREG=*808*5*2*1*1#
+   KODE_UNREG=*808*5*2*2*1#
    KODE_BELI=*808*4*1*1*1*1#
    
-   # Settings
+   # Quota Settings
    THRESHOLD_KUOTA_GB=3
+   JUMLAH_SMS_CEK=3
+   
+   # Timing Settings
    JEDA_USSD=10
    TIMEOUT_ADB=15
+   
+   # Notification Settings (recommend: false untuk interval <5min)
    NOTIF_KUOTA_AMAN=false
-   NOTIF_STARTUP=true
+   NOTIF_STARTUP=false
+   NOTIF_DETAIL=true
+   
+   # Logging
    LOG_FILE=/tmp/auto_edu.log
    MAX_LOG_SIZE=102400
    ```
@@ -199,7 +203,7 @@ BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz  # Dari @BotFather
 CHAT_ID=123456789                                # Dari @userinfobot
 
 # Kode USSD (sesuaikan provider)
-KODE_UNREG=*808*5*2*1*1#  # Kode unreg
+KODE_UNREG=*808*5*2*2*1#  # Kode unreg
 KODE_BELI=*808*4*1*1*1*1#  # Kode beli
 ```
 
@@ -213,15 +217,31 @@ THRESHOLD_KUOTA_GB=3        # Trigger renewal saat kuota < 3GB
 JEDA_USSD=10                # Delay antar perintah USSD
 TIMEOUT_ADB=15              # Timeout operasi ADB
 
-# Notifikasi
-NOTIF_KUOTA_AMAN=false      # Notif saat kuota aman
-NOTIF_STARTUP=true          # Notif saat script start
+# Notifikasi (ditanyakan saat setup.sh)
+NOTIF_KUOTA_AMAN=false      # Notif saat kuota aman (recommend: false)
+NOTIF_STARTUP=false         # Notif saat script start (recommend: false untuk interval <5min)
 NOTIF_DETAIL=true           # Notifikasi detail
 
 # Logging
 LOG_FILE=/tmp/auto_edu.log  # Path log file
 MAX_LOG_SIZE=102400         # Max size sebelum rotation (bytes)
 ```
+
+> **💡 Tips Notifikasi:**
+> - Untuk interval pendek (setiap 3-5 menit), set `NOTIF_STARTUP=false` dan `NOTIF_KUOTA_AMAN=false` untuk menghindari spam
+> - Notifikasi penting (kuota habis, renewal, error) **tetap akan dikirim** terlepas dari setting ini
+> - Setup wizard akan menanyakan preferensi Anda secara interaktif
+
+### 📱 Jenis Notifikasi
+
+| Notifikasi | Setting | Default | Penjelasan |
+|-----------|---------|---------|------------|
+| 🚀 Script Started | `NOTIF_STARTUP` | `false` | Dikirim setiap script jalan |
+| ✅ Kuota Aman | `NOTIF_KUOTA_AMAN` | `false` | Dikirim saat kuota masih cukup |
+| ⚠️ Kuota Habis | *Always ON* | - | **Selalu dikirim** saat kuota < threshold |
+| 🔄 Proses Renewal | *Always ON* | - | **Selalu dikirim** saat renewal |
+| ✅/❌ Hasil Renewal | *Always ON* | - | **Selalu dikirim** setelah renewal |
+| ❌ Error/Warning | *Always ON* | - | **Selalu dikirim** saat ada masalah |
 
 ### Cara Mendapatkan Kredensial Telegram
 
@@ -320,145 +340,11 @@ ls -la /root/Auto-Edu/
 
 ---
 
-## 🗑️ Uninstall / Stop Script
-
-### 🔴 Stop Sementara (Tanpa Uninstall)
-
-Untuk stop monitoring sementara tanpa menghapus files:
-
-```bash
-# Hapus cron job (stop auto-run)
-crontab -l | grep -v "auto_edu.py" | crontab -
-
-# Verify cron sudah kosong
-crontab -l
-```
-
-Script masih ada di `/root/Auto-Edu/`, hanya tidak jalan otomatis.
-
-**Untuk restart lagi:**
-```bash
-# Re-enable cron (setiap 3 menit)
-(crontab -l 2>/dev/null; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
-```
-
-### 🗑️ Uninstall Complete
-
-**Opsi 1: One-liner Uninstall (Recommended)**
-
-Uninstall otomatis dengan backup:
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/uninstall.sh)
-```
-
-Atau alternatif:
-```bash
-curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/uninstall.sh | sh
-```
-
-Script akan:
-- ✅ Backup otomatis sebelum uninstall
-- ✅ Remove cron job
-- ✅ Stop running processes
-- ✅ Delete semua files
-- ✅ Clean old installations
-- ✅ Verification
-
-**Opsi 2: Manual Uninstall**
-
-Dengan backup:
-```bash
-# Backup config (optional tapi recommended)
-tar -czf ~/Auto-Edu-backup-$(date +%Y%m%d).tar.gz /root/Auto-Edu/
-
-# Remove cron job
-crontab -l | grep -v "auto_edu.py" | crontab -
-
-# Delete files
-rm -rf /root/Auto-Edu/
-rm -f /tmp/auto_edu.log
-```
-
-Tanpa backup (permanent delete):
-```bash
-# One-liner force delete
-crontab -l 2>/dev/null | grep -v "auto_edu.py" | crontab -; \
-rm -rf /root/Auto-Edu/ /tmp/auto_edu.log; \
-echo "✓ Uninstall complete!"
-```
-
-**Opsi 3: Disable Sementara (Keep Files)**
-
-Untuk disable tapi simpan files:
-```bash
-# Stop cron & rename directory
-crontab -l | grep -v "auto_edu.py" | crontab -
-mv /root/Auto-Edu /root/Auto-Edu.disabled
-```
-
-Untuk enable lagi:
-```bash
-mv /root/Auto-Edu.disabled /root/Auto-Edu
-(crontab -l; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
-```
-
-### 📦 Restore dari Backup
-
-Jika sudah uninstall tapi mau restore:
-
-```bash
-# List backups
-ls -lh ~/Auto-Edu-backup-*.tar.gz
-
-# Restore
-tar -xzf ~/Auto-Edu-backup-20241103.tar.gz -C /
-
-# Re-enable cron
-(crontab -l; echo "*/3 * * * * AUTO_EDU_ENV=/root/Auto-Edu/auto_edu.env python3 /root/Auto-Edu/auto_edu.py") | crontab -
-
-# Test
-python3 /root/Auto-Edu/auto_edu.py
-```
-
-<details>
-<summary><b>📖 Troubleshooting Uninstall</b></summary>
-
-**Script masih jalan setelah remove cron?**
-```bash
-# Cek cron lagi
-crontab -l
-
-# Restart cron service
-/etc/init.d/cron restart
-
-# Kill manual
-pkill -f auto_edu.py
-```
-
-**Directory tidak bisa dihapus?**
-```bash
-# Kill running script dulu
-pkill -f auto_edu.py
-
-# Tunggu beberapa detik
-sleep 3
-
-# Coba lagi
-rm -rf /root/Auto-Edu/
-```
-
-**Mau reinstall?**
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Matsumiko/AutoEdu-renewal/main/setup.sh)
-```
-
-</details>
-
----
-
 ## 📱 Notifikasi Telegram
 
-### Notifikasi Startup
+### Notifikasi yang Bisa Di-disable
+
+#### Notifikasi Startup (Opsional)
 ```
 🚀 Script Started
 
@@ -467,8 +353,26 @@ Threshold: 3GB
 
 ⏱ 02/11/2025 14:30:00
 ```
+> Set `NOTIF_STARTUP=false` untuk disable (recommended untuk interval <5 menit)
 
-### Alert Kuota Rendah
+#### Notifikasi Kuota Aman (Opsional)
+```
+✅ Status Kuota
+
+Kuota masih aman (≥ 3GB)
+
+SMS Terakhir:
+📤 PROVIDER
+🕐 02/11/2025 14:30
+💬 Sisa kuota EduConference 30GB...
+
+⏱ 02/11/2025 14:30:00
+```
+> Set `NOTIF_KUOTA_AMAN=false` untuk disable (recommended untuk interval <5 menit)
+
+### Notifikasi yang Selalu Dikirim
+
+#### Alert Kuota Rendah
 ```
 ⚠️ Kuota Hampir Habis!
 
@@ -481,17 +385,17 @@ Sisa kuota EduConference 30GB Anda kurang dari 3GB...
 ⏱ 02/11/2025 14:30:00
 ```
 
-### Renewal Berhasil
+#### Renewal Berhasil
 ```
 🎉 Renewal ✅ Berhasil
 
-✅ USSD '*808*5*2*1*1#' terkirim
+✅ USSD '*808*5*2*2*1#' terkirim
 ✅ USSD '*808*4*1*1*1*1#' terkirim
 
 📱 SMS Terbaru:
 
 SMS #1
-📤 TELKOMSEL
+📤 PROVIDERS
 🕐 02/11/2025 14:32
 💬 Paket EduConference 30GB berhasil diaktifkan...
 
@@ -627,6 +531,26 @@ logread | grep cron
 
 </details>
 
+<details>
+<summary><b>Notifikasi Telegram spam/terlalu banyak</b></summary>
+
+**Solusi:**
+```bash
+# Edit konfigurasi
+vi /root/Auto-Edu/auto_edu.env
+
+# Set kedua notifikasi ini ke false
+NOTIF_STARTUP=false
+NOTIF_KUOTA_AMAN=false
+```
+
+**Recommended settings berdasarkan interval:**
+- Interval 3-5 menit: `NOTIF_STARTUP=false`, `NOTIF_KUOTA_AMAN=false`
+- Interval 15-30 menit: Bisa pakai `true` untuk monitoring lebih detail
+- Interval 1+ jam: Pakai `true` untuk visibility maksimal
+
+</details>
+
 ---
 
 ## 📊 Exit Codes
@@ -643,23 +567,23 @@ logread | grep cron
 
 ### Interval Monitoring yang Disarankan
 
-| Interval | Use Case | Penggunaan Resource |
-|----------|----------|---------------------|
-| Setiap 3 menit | Monitoring ketat | Medium |
-| Setiap 5 menit | Pendekatan balanced | Low-Medium |
-| Setiap 15 menit | Hemat resource | Low |
-| Setiap jam | Checking minimal | Very Low |
+| Interval | Use Case | Penggunaan Resource | Recommended Notif Settings |
+|----------|----------|---------------------|---------------------------|
+| Setiap 3 menit | Monitoring ketat | Medium | `STARTUP=false`, `AMAN=false` |
+| Setiap 5 menit | Pendekatan balanced | Low-Medium | `STARTUP=false`, `AMAN=false` |
+| Setiap 15 menit | Hemat resource | Low | `STARTUP=false`, `AMAN=true` |
+| Setiap jam | Checking minimal | Very Low | `STARTUP=true`, `AMAN=true` |
 
 ### Tips Keamanan
 
 1. **Lindungi kredensial Anda**
    ```bash
-   chmod 600 /root/.auto_edu.env  # Hanya root yang bisa baca
+   chmod 600 /root/Auto-Edu/auto_edu.env  # Hanya root yang bisa baca
    ```
 
 2. **Backup konfigurasi**
    ```bash
-   cp /root/.auto_edu.env /root/.auto_edu.env.backup
+   cp /root/Auto-Edu/auto_edu.env /root/Auto-Edu/auto_edu.env.backup
    ```
 
 3. **Gunakan chat ID private** (bukan group chat)
@@ -668,10 +592,22 @@ logread | grep cron
 
 ### Tips Optimasi
 
-- Disable notifikasi yang tidak perlu untuk hemat resource
-- Tingkatkan interval monitoring jika penggunaan kuota predictable  
-- Setup log rotation untuk deployment jangka panjang
-- Monitor kesehatan script dengan custom alerts
+- **Disable notifikasi yang tidak perlu** - Set `NOTIF_STARTUP=false` dan `NOTIF_KUOTA_AMAN=false` untuk interval pendek
+- **Tingkatkan interval monitoring** jika penggunaan kuota predictable  
+- **Setup log rotation** untuk deployment jangka panjang
+- **Monitor kesehatan script** dengan custom alerts
+
+### Tips Anti-Spam Notifikasi
+
+✅ **DO:**
+- Set `NOTIF_STARTUP=false` untuk cron interval < 5 menit
+- Set `NOTIF_KUOTA_AMAN=false` jika tidak butuh konfirmasi rutin
+- Gunakan interval 15+ menit jika tidak urgent
+
+❌ **DON'T:**
+- Enable semua notifikasi dengan interval 3 menit (spam!)
+- Set threshold terlalu tinggi (false alarm)
+- Gunakan group chat untuk notifikasi production
 
 ---
 
@@ -682,13 +618,14 @@ logread | grep cron
 | **Error Handling** | Basic | Advanced dengan retry |
 | **Logging** | Tidak ada | File + console |
 | **Notifikasi** | Plain text | HTML formatted |
+| **Anti-Spam Notif** | ❌ | ✅ Configurable |
+| **Setup Wizard** | ❌ | ✅ Interactive |
 | **Konfigurasi** | Hardcoded | .env file |
 | **Validasi** | Tidak ada | Pre-flight check |
 | **Architecture** | Procedural | Object-oriented |
 | **Timeout** | Tidak ada | Semua operasi |
 | **Exit Codes** | Tidak ada | Proper codes |
 | **Documentation** | Minimal | Comprehensive |
-| **Setup** | Manual edit | Interactive wizard |
 | **Success Rate** | ~85% | ~98% |
 
 ---
@@ -740,17 +677,6 @@ rm -rf /root/Auto-Edu/ /tmp/auto_edu.log; \
 echo "✓ Uninstall complete!"
 ```
 
-<details>
-<summary><b>📖 Panduan Lengkap Uninstall</b></summary>
-
-Lihat [UNINSTALL_GUIDE.txt](UNINSTALL_GUIDE.txt) untuk:
-- Stop sementara vs permanent uninstall
-- Disable monitoring tapi keep files
-- Restore dari backup
-- Troubleshooting uninstall
-
-</details>
-
 ---
 
 ## 🤝 Contributing
@@ -772,6 +698,7 @@ Kontribusi sangat welcome! Berikut cara contribute:
 - [ ] Integrasi mobile app
 - [ ] Docker container
 - [ ] Fitur backup/restore
+- [ ] Notification rate limiting
 
 ---
 
@@ -786,8 +713,7 @@ Kontribusi sangat welcome! Berikut cara contribute:
 
 ## 🙏 Acknowledgments
 
-- **Original Script**: [@zifahx](https://github.com/zifahx) - Terima kasih untuk script original yang powerful!
-- **Source**: https://pastebin.com/ZbXMvX4D
+- **Original Script**: [@zifahx](https://pastebin.com/ZbXMvX4D) - Terima kasih untuk script original yang powerful!
 - **OpenWrt Community**: Untuk platform yang luar biasa
 - **Contributors**: Semua yang telah berkontribusi untuk project ini
 
@@ -806,7 +732,7 @@ Kontribusi sangat welcome! Berikut cara contribute:
 
 **Dibuat dengan ❤️ untuk komunitas**
 
-**Original by [@zifahx](https://t.me/zifahx) • Edited Version**
+**Edited Version By Matsumiko**
 
 *Jika ini membantu Anda, tolong berikan ⭐ star!*
 
