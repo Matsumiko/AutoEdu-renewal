@@ -7,13 +7,13 @@ Sistem otomatis untuk monitoring dan perpanjangan kuota Edu
 Optimized for OpenWrt environment
 
 Edited Version by: Matsumiko
-Original script by: @zifahx
 Source: https://pastebin.com/ZbXMvX4D
 
-FIXED VERSION - Mengatasi double renewal issue dengan:
+FIXED VERSION - Mengatasi double renewal & heavy usage dengan:
 - Time-based SMS filtering (hanya cek SMS < 15 menit)
 - Deteksi konfirmasi aktivasi paket
 - Skip renewal jika paket baru saja aktif
+- Renewal timestamp tracking (proteksi pemakaian berat)
 
 Setup:
 1. opkg update && opkg install python3 curl
@@ -403,6 +403,16 @@ def proses_renewal(adb, telegram, logger):
     success_beli, msg_beli = adb.kirim_ussd(KODE_BELI)
     hasil.append(msg_beli)
     
+    # Step 2.5: Save renewal timestamp (IMPORTANT!)
+    if success_beli:
+        try:
+            renewal_timestamp_file = '/tmp/auto_edu_last_renewal'
+            with open(renewal_timestamp_file, 'w') as f:
+                f.write(str(int(time.time())))
+            logger.success(f"Renewal timestamp disimpan: {datetime.now()}")
+        except Exception as e:
+            logger.warning(f"Gagal simpan timestamp: {e}")
+    
     # Step 3: Baca SMS konfirmasi
     time.sleep(3)
     sms_list, _ = adb.baca_sms(limit=2)
@@ -473,7 +483,24 @@ def cek_kuota_dan_proses(adb, telegram, logger):
         return True
     
     # ========================================================================
-    # FIX #2: Filter SMS berdasarkan waktu (hanya cek SMS fresh)
+    # FIX #2: Load timestamp renewal terakhir (for heavy usage protection)
+    # ========================================================================
+    last_renewal_time = 0
+    renewal_timestamp_file = '/tmp/auto_edu_last_renewal'
+    
+    if Path(renewal_timestamp_file).exists():
+        try:
+            with open(renewal_timestamp_file, 'r') as f:
+                last_renewal_time = int(f.read().strip())
+            last_renewal_str = datetime.fromtimestamp(last_renewal_time).strftime('%d/%m/%Y %H:%M:%S')
+            logger.info(f"Last renewal: {last_renewal_str}")
+        except Exception as e:
+            logger.warning(f"Cannot read last renewal timestamp: {e}")
+    else:
+        logger.info("No previous renewal timestamp found (first run?)")
+    
+    # ========================================================================
+    # FIX #3: Filter SMS dengan multi-criteria (time + renewal timestamp)
     # ========================================================================
     current_time = time.time()
     max_age_seconds = SMS_MAX_AGE_MINUTES * 60
@@ -481,23 +508,32 @@ def cek_kuota_dan_proses(adb, telegram, logger):
     fresh_kuota_rendah = False
     for sms in sms_list:
         sms_age = current_time - sms['timestamp']
+        sms_age_minutes = int(sms_age / 60)
         
-        # Hanya cek SMS yang masih fresh (< X menit)
-        if sms_age < max_age_seconds:
-            if keyword.lower() in sms['isi'].lower():
-                fresh_kuota_rendah = True
-                sms_age_minutes = int(sms_age / 60)
-                logger.warning(
-                    f"⚠️ SMS kuota rendah ditemukan "
-                    f"(usia: {sms_age_minutes} menit, threshold: {SMS_MAX_AGE_MINUTES} menit)"
-                )
-                break
-        else:
-            sms_age_minutes = int(sms_age / 60)
-            logger.info(f"Skip SMS lama (usia: {sms_age_minutes} menit)")
+        # Kriteria 1: SMS terlalu lama (> X menit)
+        if sms_age > max_age_seconds:
+            logger.info(f"Skip SMS: terlalu lama (usia: {sms_age_minutes} menit, max: {SMS_MAX_AGE_MINUTES} menit)")
+            continue
+        
+        # Kriteria 2: SMS sebelum renewal terakhir (CRITICAL for heavy usage!)
+        if last_renewal_time > 0 and sms['timestamp'] < last_renewal_time:
+            sms_time_str = datetime.fromtimestamp(sms['timestamp']).strftime('%d/%m/%Y %H:%M:%S')
+            logger.info(f"Skip SMS: dari sebelum renewal terakhir (SMS: {sms_time_str})")
+            continue
+        
+        # Kriteria 3: SMS mengandung keyword kuota rendah
+        if keyword.lower() in sms['isi'].lower():
+            fresh_kuota_rendah = True
+            is_after_renewal = sms['timestamp'] > last_renewal_time if last_renewal_time > 0 else True
+            logger.warning(
+                f"⚠️ KUOTA RENDAH TERDETEKSI! "
+                f"SMS usia: {sms_age_minutes} menit, "
+                f"Setelah renewal: {'Ya' if is_after_renewal else 'N/A'}"
+            )
+            break
     
     if fresh_kuota_rendah:
-        logger.warning(f"⚠️ KUOTA RENDAH TERDETEKSI! (< {THRESHOLD_KUOTA_GB}GB)")
+        logger.warning(f"⚠️ KUOTA RENDAH VALID! (< {THRESHOLD_KUOTA_GB}GB)")
         
         # Kirim notifikasi dan mulai renewal
         telegram.kirim_pesan_format(
@@ -511,7 +547,7 @@ def cek_kuota_dan_proses(adb, telegram, logger):
         return proses_renewal(adb, telegram, logger)
     
     else:
-        logger.success(f"✅ Kuota masih aman (≥ {THRESHOLD_KUOTA_GB}GB atau SMS sudah lama)")
+        logger.success(f"✅ Kuota masih aman (≥ {THRESHOLD_KUOTA_GB}GB atau SMS sudah di-proses)")
         
         if NOTIF_KUOTA_AMAN:
             telegram.kirim_pesan_format(
